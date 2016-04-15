@@ -78,6 +78,14 @@ featured-condition-size: 1              # A tag will be featured if the size of 
 # Friends
 friends: [
     {
+        title: "Linkedin",
+        href: "http://www.linkedin.com/in/xulei33"
+    },
+    {
+        title: "500px",
+        href: "https://500px.com/xulei1"
+    },
+    {
         title: "SAS商业分析社区",
         href: "http://club.sas.com.cn/"
     },{
@@ -86,10 +94,6 @@ friends: [
     },{
         title: "统计之都",
         href: "http://cos.name/"
-    }
-    ,{
-        title: "Linkedin",
-        href: "http://www.linkedin.com/in/xulei33"
-    }
+    }  
     
 ]
