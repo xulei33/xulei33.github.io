@@ -1,13 +1,15 @@
 ---
 layout:     post
 title:      "Markdown 使用手册"
-subtitle:   "Markdown User Guide"
-date:       2016-04-16 12:00:00
+subtitle:   "Markdown UserGuide"
+date:       2016-02-01 12:00:00
 author:     ""
+header-img: "img/in-post/post-bg-re-vs-ng2.jpg"
 header-mask: 0.3
 catalog:    true
 tags:
-    - Markdown
+    - JavaScript
+    - 译文
 ---
 [『Cmd 技术渲染的沙箱页面，点击此处编写自己的文档』](https://www.zybuluo.com/mdeditor "作业部落旗下 Cmd 在线 Markdown 编辑阅读器")
 
