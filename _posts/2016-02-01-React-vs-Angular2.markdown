@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "React vs Angular 2：冰与火之歌「译」"
+title:      "Markdown Demo"
 subtitle:   "React versus Angular 2: There Will Be Blood"
 date:       2016-02-01 12:00:00
 author:     "Hux"
@@ -8,11 +8,10 @@ header-img: "img/in-post/post-bg-re-vs-ng2.jpg"
 header-mask: 0.3
 catalog:    true
 tags:
-    - 前端开发
     - JavaScript
     - 译文
 ---
-
+>
 > 这篇文章转载自[我在知乎专栏「前端外刊评论」上发表的文章](http://zhuanlan.zhihu.com/FrontendMagazine/20549104)。
 
 
