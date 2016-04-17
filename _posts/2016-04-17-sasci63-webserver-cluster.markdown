@@ -8,6 +8,7 @@ header-img: "img/in-post/post-bg-re-vs-ng2.jpg"
 header-mask: 0.3
 catalog:    true
 tags:
+    - SAS
     - SASCI63
 ---
 
