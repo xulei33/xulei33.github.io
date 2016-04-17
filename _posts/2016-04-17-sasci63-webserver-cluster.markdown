@@ -26,7 +26,7 @@ tags:
 3. Configure Load Balancer
 
 ## Install SAS WebServer
-使用XManager通过SAS部署用户·sas·远程登录中间层Node服务器，`cd /share/SASSoftDepot/`,通过命令`./setup.sh`执行SAS Deployment Wizard。
+使用XManager通过SAS部署用户`sas`远程登录中间层Node服务器，`cd /share/SASSoftDepot/`,通过命令`./setup.sh`执行SAS Deployment Wizard。
 
 ![](/img/in-post/2017-04-07/2016-04-17 (1).png)
 
@@ -38,17 +38,17 @@ Choose`Install Additional Software`,then click `Next` to continue
 
 UnCheck all other SAS softwares, only check `SAS WebServer`,then click `Next` to install SAS WebServer on current server. 
 
-安装完成后，不要使用SAS Deployment Wizard对服务器进行自动·configure·，请参照下面部署进行手工配置。
+安装完成后，不要使用SAS Deployment Wizard对服务器进行自动`configure`，请参照下面部署进行手工配置。
 
 ## Configure SAS WebServer
 ###复制SASWebServer
 使用SAS系统部署用户登录到中间层主节点服务器，
-·
+`
 cd SASConfig/Lev1/Web/
 tar czvf WebServer.tar.gz WebServer
-·
-然后使用SAS系统部署用户·sas·复制WebServer.tar.gz到Node节点服务器的·SASConfig/Lev1/Web/·目录。
-Redhat下可以使用scp命令 ·scp WebServer.tar.gz sas@NodeServerIP:SASConfig/Lev1/Web/WebServer.tar.gz·
+`
+然后使用SAS系统部署用户`sas`复制WebServer.tar.gz到Node节点服务器的`SASConfig/Lev1/Web/`目录。
+Redhat下可以使用scp命令 `scp WebServer.tar.gz sas@NodeServerIP:SASConfig/Lev1/Web/WebServer.tar.gz`
 文件复制完成后，使用命令` tar xzvf WebServer.tar.gz `解压文件。
 
 ###配置conf和sas.conf
