@@ -2,7 +2,7 @@
 layout:     post
 title:      "SAS WebServer Cluster Configuration"
 subtitle:   "SASCI6.3 high availability deployment"
-date:       2016-04-16 13:00:00
+date:       2016-04-17 13:00:00
 author:     "Xulei"
 header-img: "img/in-post/post-bg-re-vs-ng2.jpg"
 header-mask: 0.3

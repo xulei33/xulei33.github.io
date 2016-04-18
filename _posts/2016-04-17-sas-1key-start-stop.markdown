@@ -2,7 +2,7 @@
 layout:     post
 title:      "Linux集群环境下一键停启SAS服务"
 subtitle:   "1Key Star|Stop SAS Servers in Linux Cluster Env. "
-date:       2016-04-16 17:00:00
+date:       2016-04-17 17:00:00
 author:     "Xulei"
 header-img: "img/in-post/post-bg-re-vs-ng2.jpg"
 header-mask: 0.3
