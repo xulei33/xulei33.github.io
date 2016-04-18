@@ -30,7 +30,7 @@ tags:
 2. 三台计算层服务器:`sasapp01、sasapp02、sasapp03`，其他`sasapp01`为计算层主节点服务器，`sasapp02`和`sasapp03`为计算层Node节点服务器。
 3. 三台中间层服务器:`sasmid01、sasmid02、sasmid03`，其中`sasmid01`为中间层主节点服务器，`sasmid02`和`sasmid03`为中间层Node节点服务器。
 
-下面将分步介绍如何为上面部署环境完成一键启动配置配置。
+下面将分步介绍如何为上面部署环境配置一键停启SAS服务功能。
 
 1. 配置服务器间的SSH互信
 2. 编写停启SAS Server的脚本
@@ -49,7 +49,7 @@ ssh-keygen -t rsa
 
 ![](/img/in-post/2017-04-07/ssh-keygen.png)
 
-* 配置配置服务器互信 
+* 配置SAS管理服务器和被管理服务器间的ssh互信 
 
 假设把sasmeta01作为管理服务器来管理其他Linux服务器，则需要使用`sas`用户登录sasmeta01服务器，把上面为`sas`用户创建的公钥id_rsa.pub通过下面命令复制到其被管理服务器的`/home/sas/.ssh`目录。
 
