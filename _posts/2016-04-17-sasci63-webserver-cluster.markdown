@@ -14,7 +14,7 @@ tags:
 
 # SAS WebServer Cluster
 
-对系统有高可用要求的情况下，SAS的默认部署计划是不能满足要求，所以我们需要在通过SAS Deployment Wizard使用默认部署计划完成系统部署后，还需要对系统进行手工配置。
+对系统有高可用要求的情况下，SAS的默认部署计划是不能满足要求的，需要在通过SAS Deployment Wizard使用默认部署计划完成系统部署后，还要对系统进行手工配置。
 
 >
 > SAS6.3默认部署计划中，SAS WebServer只部署在中间层主节点上，中间层的Node节点上只有WebAPPServer,这样就导致了如果中间层主节点服务器停机的话，即使Node节点工作正常，用户的请求也不能通过WebServer发送到Node节点的WebAPPServer，系统部署架构存在单点问题。
