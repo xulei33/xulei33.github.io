@@ -113,6 +113,11 @@ SAS服务器配置完成后，默认对外提供服务的的地址是自动安�
 
 > 修改`${webinfpltfm.client.registry.url}`指向的URL地址，由中间层主节点服务器地址修改为F5地址或者DNS域名，如果F5设置了端口映射，也同时修改URL中的端口号。
 
+使用SAS系统部署用户`sas`登录计算层服务器，编辑文件`vi SASHome/SASMarketingAutomationIntegrationUtilities/6.3/spring-config/application.properties`，
+
+> 修改`${webinfpltfm.client.registry.url}`指向的URL地址，由中间层主节点服务器地址修改为F5地址或者DNS域名，如果F5设置了端口映射，也同时修改URL中的端口号。
+
+
 ## Restart All SAS Servers
 
 以上步骤配置好后，需要通过用户`sas`按照从中间层、计算层、元数据层的顺序停止所有服务器，
