@@ -39,6 +39,10 @@ tags:
 > export DB2_HOME
 >
 > export PATH
+> 
+> source /home/db2inst1/sqllib/db2profile
+> 
+> export DB2CODPEAGE=1386
 >
 
 ![](/img/in-post/2016-05-17/2016-05-17(12).png)
@@ -52,6 +56,41 @@ tags:
 
 ![](/img/in-post/2016-05-17/2016-05-17(14).png)
 ![](/img/in-post/2016-05-17/2016-05-17(15).png)
+
+### 配置SAS Format
+> vi SASConfig/Lev1/SASApp/appserver_autoexec_usermods.sas
+>
+> options FMTSEARCH=(MAMISC WORK LIBRARY) NOFMTERR;
+>
+> options missing="";
+>
+
+### 配置sasv9.cfg
+> vi SASHome\SASFoundation\9.4\sasv9.cfg
+
+#### 配置SAS支持中文 
+sasv9.cfg文件尾部添加
+> -VALIDVARNAME ANY
+> -VALIDMEMNAME EXTEND
+> -DBCS
+> -DBCSTYPE PCMS
+> -DBCSLANG CHINESE
+
+#### 配置-JREOPTIONS
+增加下面两个jre参数
+> -Duser.language=zh
+>
+> -Duser.country=CN
+
+#### 配置计算服务器-WORK工作目录
+
+> 在计算服务器共享存储上创建计算服务器工作目录
+> mkdir -p /compute/saswork
+> chown 775 /compute/saswork
+
+>
+> -WORK /compute/saswork
+> 
 
 ### 计算层服务器编目
 
@@ -79,6 +118,15 @@ tags:
 ![](/img/in-post/2016-05-17/2016-05-17(22).png)
 ![](/img/in-post/2016-05-17/2016-05-17(23).png)
 
+
+### SAS EG创建CDM表和序列
+
+CDM的数据库初始化脚本保存在SASHome/SASFoundation/9.4/misc/cicsvr目录下面，需要通过EG执行下面两个sas程序完成CDM创建。
+
+> 1. ci_cdm_ddl_db2.sas 
+> 2. ci_cdm_load_codes.sas
+>
+
 ### SMC创建数据集
 ![](/img/in-post/2016-05-17/2016-05-17(24).png)
 ![](/img/in-post/2016-05-17/2016-05-17(25).png)
@@ -86,3 +134,11 @@ tags:
 ![](/img/in-post/2016-05-17/2016-05-17(27).png)
 ![](/img/in-post/2016-05-17/2016-05-17(28).png)
 ![](/img/in-post/2016-05-17/2016-05-17(29).png)
+
+
+### 配置EG代码目录
+![](/img/in-post/2016-05-17/2016-05-17(30).png)
+![](/img/in-post/2016-05-17/2016-05-17(31).png)
+![](/img/in-post/2016-05-17/2016-05-17(32).png)
+
+
