@@ -3,5 +3,5 @@ cd D:\Document\git\xulei33.github.io
 git status
 git pull
 git add .
-git commit -m "git comments"
+git commit -a -m "git comments"
 git push origin master
