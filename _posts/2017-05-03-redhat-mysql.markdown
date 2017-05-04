@@ -73,11 +73,11 @@ vi /etc/my.cnf
 
 ```
 service mysqld start 启动mysql
-mysql –u root –p 登录，无需密码直接回车
+mysql -uroot -p 登录，无需密码直接回车
 mysql>use mysql; 选择数据库
-mysql>update user set password_expired=”N” where user=”root”;
+mysql>update user set password_expired='N' where user='root';
 设置密码失效为”N”
-mysql> update user set authentication_string=password(“sas123”) where user=”root”;
+mysql> update user set authentication_string=password('sas123') where user='root';
 设置密码为”sas123”
 mysql> flush privileges;
 刷新生效
@@ -85,12 +85,20 @@ mysql>quit;
 退出
 ```
 
+## 停启MySQL
+
+```
+systemctl stop mysqld
+systemctl start mysqld
+systemctl restart mysqld
+```
+
 ## 修改配置
 
 ```
 vi /etc/my.cnf
 注释或删除 #skip-grant-tables
-mysql –u root –p
+mysql -u root -p
 用新密码sas123登陆
 ```
 
@@ -98,8 +106,8 @@ mysql –u root –p
 
 ```
 [root@mysql MySQL]#mysqladmin -u用户名 -p旧密码 password 新密码
-[root@mysql MySQL]#mysqladmin -uroot –p123456 password “sas123“
-mysql>set password=password(“sas123”); 
+[root@mysql MySQL]#mysqladmin -uroot –p123456 password 'sas123'
+mysql>set password=password('sas123'); 
 ```
 
 ## 允许mysql远程访问
@@ -110,9 +118,21 @@ mysql>grant all privileges on *.* to ‘root’@’%’with grant option;
 mysql>grant all privileges on *.* to ‘root’@’%’identified by ‘sas123’ with grant option;
 ```
 
-## 解决乱码问题
+## 配置其他参数
+
+```
 vi /etc/my.cnf
-通过增加参数 –default-character-set = utf8 解决乱码问题
+
+character-set-server=utf8
+collation-server=utf8_general_ci
+max_connections=1000
+table_open_cache=6000
+thread_cache_size=50
+open_files_limit=8000
+event_scheduler=ON
+ 
+group_concat_max_len=999999999999
+```
 
 ## 防火墙
 
@@ -126,6 +146,15 @@ systemctl disable firewalld
 打开防火墙命令systemctl enable firewalld
 ```
 
+## MySQL需要关注的6个文件如下:
 
+```
+[root@mysql opt]# vi /etc/init.d/mysqld
+[root@mysql opt]# vi /etc/my.cnf
+[root@mysql opt]# vi /run/systemd/generator.late/mysqld.service
+[root@mysql opt]# vi /run/systemd/generator.late/runlevel5.target.wants/mysqld.service
+[root@mysql opt]# vi /run/systemd/generator.late/runlevel4.target.wants/mysqld.service
+[root@mysql opt]# vi /run/systemd/generator.late/runlevel3.target.wants/mysqld.service
+```
 
 
