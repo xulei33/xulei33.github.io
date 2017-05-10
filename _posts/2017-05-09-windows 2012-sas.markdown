@@ -1,0 +1,79 @@
+---
+layout:     post
+title:      "Windows Install SAS"
+subtitle:   "Windows Server 2012"
+date:       2017-05-09 22:00:00
+author:     "Xulei"
+header-img: "img/in-post/post-bg-re-vs-ng2.jpg"
+header-mask: 0.3
+catalog:    true
+tags:
+    - Windows
+    - SAS
+---
+
+> 在使用SAS SDW在Window上安装SAS前，需要做一些设置，否则安装会失败。
+
+## 服务器配置
+系统最低配置为4core CPU， 6GB内存，100GB存储
+
+![](/img/in-post/2017-05-09/1.png)
+
+
+## 修改本地安全策略
+Administrator登录系统，禁用密码复杂性要求，修改密码失效时间为999
+![](/img/in-post/2017-05-09/2.png)
+
+## 创建用户
+通过系统管理员Administrator登录系统，通过下面powershell创建用户和用户组
+
+
+```
+NET USER sas sas123 /ADD /COMMENT:"SAS Install User" /EXPIRES:NEVER
+NET USER sassrv sas123 /ADD /COMMENT:"SAS Server User" /EXPIRES:NEVER
+NET USER sasdemo sas123 /ADD /COMMENT:"SAS Demo User" /EXPIRES:NEVER
+NET LOCALGROUP "SAS Group" /ADD /COMMENT:"SAS Server Users"
+NET LOCALGROUP "SAS Group" sas sassrv sasdemo /ADD
+NET LOCALGROUP "Administrators" sas /ADD
+```
+
+## 分配权限
+在“本地安全策略-用户权限分配”中给SAS用户组分配以下权限
+
+1. 作为批处理作业登录
+2. 为进程调整内存配额
+3. 替换一个进程级令牌
+
+![](/img/in-post/2017-05-09/3.png)
+![](/img/in-post/2017-05-09/4.png)
+![](/img/in-post/2017-05-09/6.png)
+![](/img/in-post/2017-05-09/7.png)
+![](/img/in-post/2017-05-09/8.png)
+
+
+## 安装ActivePython 2.7
+通过地址[https://www.activestate.com/activepython](https://www.activestate.com/activepython)下载ActivePython-2.7.13.2714-win64-x64-402182,
+通过系统管理员安装。
+
+## 安装浏览器Firefox
+由于SAS的Web应用大量使用了Flex, Windows 2012的IE浏览器由于安全限制，不方便使用，建议安装Firefox浏览器使用。
+下载地址[http://www.firefox.com.cn/download/](http://www.firefox.com.cn/download/)
+
+## 安装SAS
+使用系统用户sas登录系统，开始系统安装。
+![](/img/in-post/2017-05-09/9.png)
+
+配置SAS EM Env地址
+![](/img/in-post/2017-05-09/10.png)
+
+## 安装后配置
+
+使用sasadm@saspw 密码sas123登录SAS Management Console，配置sasdemo用户信息
+![](/img/in-post/2017-05-09/11.png)
+
+
+## 查看系统安装信息
+
+```
+file:///C:/SAS/CLAConfig/Lev1/Documents/Instructions.html
+```
