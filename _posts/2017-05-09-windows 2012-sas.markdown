@@ -15,7 +15,7 @@ tags:
 > 在使用SAS SDW在Window上安装SAS前，需要做一些设置，否则安装会失败。
 
 ## 服务器配置
-系统最低配置为4core CPU， 6GB内存，100GB存储
+系统最低配置为4core CPU， 16GB内存，100GB存储
 
 ![](/img/in-post/2017-05-09/1.png)
 
