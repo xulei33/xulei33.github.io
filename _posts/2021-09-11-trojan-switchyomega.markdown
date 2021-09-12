@@ -30,8 +30,8 @@ Edge浏览器安装SwitchyOmega插件，配置proxy，配置auto switch策略
 
 ```
 yum -y install wget    #安装 wget
-yum update -y && yum install curl -y   #安装 Curl 方法
-yum install xz    #安装 XZ 压缩工具
+yum -y install curl    #安装 Curl 方法
+yum -y install xz    #安装 XZ 压缩工具
 yum update  #CentOS更新
 ```
 
