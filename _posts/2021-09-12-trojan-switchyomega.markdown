@@ -1,15 +1,15 @@
 ---
 layout:     post
-title:      "Windows Install MySQL 5.7.18"
-subtitle:   "ZIP install MySQL"
-date:       2017-05-09 21:00:00
+title:      "Trojan SwitchyOmega手工安装配置"
+subtitle:   "Trojan SwitchyOmega安装配置说明"
+date:       2021-09-12 12:00:00
 author:     "Xulei"
 header-img: "img/in-post/post-bg-re-vs-ng2.jpg"
 header-mask: 0.3
 catalog:    true
 tags:
-    - MySQL
-    - Windows
+    - Trojan
+    - SwitchyOmega
 ---
 
 > msi版本mysql双击文件即可安装，相对简单，本文不介绍此版本安装。

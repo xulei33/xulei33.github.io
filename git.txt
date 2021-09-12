@@ -1,5 +1,5 @@
-D:
-cd D:\Document\git\xulei33.github.io
+C:
+D:\java\tools\xulei33.github.io
 git status
 git pull
 git add .
