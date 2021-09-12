@@ -2,7 +2,7 @@
 layout:     post
 title:      "Trojan SwitchyOmega手工安装配置"
 subtitle:   "Trojan SwitchyOmega安装配置说明"
-date:       2021-09-12 12:00:00
+date:       2021-09-11 12:00:00
 author:     "Xulei"
 header-img: "img/in-post/post-bg-re-vs-ng2.jpg"
 header-mask: 0.3
