@@ -1,10 +1,10 @@
 ---
 layout:     post
-title:      "Trojan SwitchyOmega手工安装配置"
-subtitle:   "Trojan SwitchyOmega安装配置说明"
+title:      "Trojan和SwitchyOmega手工安装配置说明"
+subtitle:   "使用VPS部署Trojan和SwitchyOmega，观看YouTube"
 date:       2021-09-11 12:00:00
 author:     "Xulei"
-header-img: "img/in-post/post-bg-re-vs-ng2.jpg"
+header-img: "img/tag-bg.jpg"
 header-mask: 0.3
 catalog:    true
 tags:
@@ -12,93 +12,230 @@ tags:
     - SwitchyOmega
 ---
 
-> msi版本mysql双击文件即可安装，相对简单，本文不介绍此版本安装。
-
-## 下载安装包
-
-通过 [https://dev.mysql.com/downloads/mysql/](https://dev.mysql.com/downloads/mysql/) 下载MySQL安装包，选择版本：Windows (x86, 64-bit), ZIP Archive。
-下载完后，解压到系统目录，如：
+## Trojan安装配置分为下面7个步骤，需要按照顺序执行
 
 ```
-C:\MySQL\mysql-5.7.18
+申请海外VPS，包含外部IP地址（AWS，Azure，阿里云国际等）
+申请海外域名，配置DNS解析到VPS的外部IP地址上
+安装nginx，配置静态网站，通过http可访问域名
+申请安装https数字证书(通过acme.sh申请安装zerossl证书)
+安装Trojan，配置系统启动服务，配置域名和密码，配置https证书
+下载安装客户端，配置服务器信息，编写启停脚本
+Edge浏览器安装SwitchyOmega插件，配置proxy，配置auto switch策略
+
+```
+
+
+## 安装VPS环境
+
+```
+yum -y install wget    #安装 wget
+yum update -y && yum install curl -y   #安装 Curl 方法
+yum install xz    #安装 XZ 压缩工具
+yum update  #CentOS更新
+```
+
+## 安装NGINX
+```
+yum -y install  nginx wget unzip zip curl tar   #CentOS安装
+systemctl enable nginx.service    #设置Nginx开机启动
 ```
 
 
-## 配置环境变量
-打开环境变量配置页面(winserver服务器环境变量位置：服务器管理器->本地服务器->计算机名称->高级->环境变量)，在系统变量path后面添加mysql bin文件路径，例如：
-
+## 配置Nginx
 ```
-C:\MySQL\mysql-5.7.18\bin
-```
-
-## 配置mysql
-复制根目录下my-default.ini为my.ini,修改my.ini配置文件如下：
-
-```
-basedir = C:\MySQL\mysql-5.7.18
-datadir = C:\MySQL\data(mysql数据库存放目录)
-port = 3306(mysql对外开放端口，默认3306，可修改)
+找到路径 /etc/nginx/nginx.conf 更新下面参数
+user  root;
+#tcp_nopush     on;
+keepalive_timeout  120;
+server_name  申请的域名; #申请的域名
 ```
 
-## 初始化mysql
-使用系统管理员Administrator进入mysql的bin目录，执行数据库初始化命令，并安装为系统服务。
-
+### 设置伪装站点
 ```
-cd C:\MySQL\mysql-5.7.18\bin
-mysqld --initialize-insecure
-mysqld -install
-```
-
-使用快捷键win+r打开运行，执行services.msc查看服务，看看mysql服务是否安装成功。
-
-## 启动、停止MySQL命令
-
-```
-net start mysql 启动MySQL
-net stop mysql 停止MySQL
+rm -rf /usr/share/nginx/html/*   #删除目录原有文件
+cd /usr/share/nginx/html/    #进入站点更目录
+wget https://github.com/V2RaySSR/Trojan/raw/master/web.zip
+unzip web.zip
+systemctl restart nginx.service
 ```
 
-## 登录用户管理及密码修改
+到这里，你访问http://申请的域名 ，应该可以打开网站了。（不是https://）
+
+## 下载Trojan服务器
+点击访问Trojan服务端下载页面：[Releases · trojan-gfw/trojan · GitHub](https://github.com/trojan-gfw/trojan/releases) 查看最新版本地址
+cd /usr/src  #进入该目录
 
 ```
-mysql -uroot -p 登录，无需密码直接回车
-mysql>use mysql; 选择数据库
-mysql>update user set password_expired='N' where user='root'; 设置密码失效为”N”
-
-修改密码为”sas123”
-mysql> update user set authentication_string=password('sas123') where user='root';
-mysql> flush privileges;刷新生效
-mysql>quit;退出
+wget https://github.com/trojan-gfw/trojan/releases/download/v1.16.0/trojan-1.16.0-linux-amd64.tar.xz    #下载官方Trojan服务器
+tar xf trojan-1.*   #解压该文件
 ```
 
-## 允许mysql远程访问
+## 创建Trojan服务器配置文件
+找到 /usr/src/trojan/ 目录，创建并打开server.conf文件，写入以下内容
 
 ```
-赋予root任何主机访问的权限
-mysql>grant all privileges on *.* to ‘root’@’%’ with grant option;
+{
+    "run_type": "server",
+    "local_addr": "0.0.0.0",
+    "local_port": 443,
+    "remote_addr": "127.0.0.1",
+    "remote_port": 80,
+    "password": [
+        "00000000"
+    ],
+    "log_level": 1,
+    "ssl": {
+        "cert": "/usr/src/trojan-cert/fullchain.cer",
+        "key": "/usr/src/trojan-cert/private.key",
+        "key_password": "密码",
+        "cipher_tls13":"TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_256_GCM_SHA384",
+	"prefer_server_cipher": true,
+        "alpn": [
+            "http/1.1"
+        ],
+        "reuse_session": true,
+        "session_ticket": false,
+        "session_timeout": 600,
+        "plain_http_response": "",
+        "curves": "",
+        "dhparam": ""
+    },
+    "tcp": {
+        "no_delay": true,
+        "keep_alive": true,
+        "fast_open": false,
+        "fast_open_qlen": 20
+    },
+    "mysql": {
+        "enabled": false,
+        "server_addr": "127.0.0.1",
+        "server_port": 3306,
+        "database": "trojan",
+        "username": "trojan",
+        "password": ""
+    }
+}
 ```
 
-## 新建允许远程链接mysql数据库的用户
+## 创建Trojan自启服务
+Debian系统找到/lib/systemd/system/目录，并创建trojan.service文件
+CentOS系统找到/usr/lib/systemd/system/目录，并创建trojan.service文件
+打开trojan.service文件，并写入以下代码
+```
+[Unit]  
+Description=trojan  
+After=network.target  
+   
+[Service]  
+Type=simple  
+PIDFile=/usr/src/trojan/trojan/trojan.pid
+ExecStart=/usr/src/trojan/trojan -c "/usr/src/trojan/server.conf"  
+ExecReload=  
+ExecStop=/usr/src/trojan/trojan  
+PrivateTmp=true  
+   
+[Install]  
+WantedBy=multi-user.target
+```
+
+## 开始申请SSL证书
+HTTPS证书更新配置工具acme.sh
+说明 · [acmesh-official/acme.sh Wiki · GitHub](https://github.com/acmesh-official/acme.sh/wiki/%E8%AF%B4%E6%98%8E)
 
 ```
-grant all on *.* to sas@'%' identified by 'sas123' with grant option;
-flush privileges;
+curl  https://get.acme.sh | sh -s email=xulei33@msn.com
 ```
 
-创建一个登录名为sas，密码为sas123供任意ip访问的用户(%可用具体ip替代)
+## 申请证书：
+```
+acme.sh --issue  -d 申请的域名   --nginx
+```
 
-## 配置其他参数
+得到证书
+```
+[Sun Sep 12 10:15:33 CST 2021] Your cert is in: /root/.acme.sh/申请的域名/申请的域名.cer
+[Sun Sep 12 10:15:33 CST 2021] Your cert key is in: /root/.acme.sh/申请的域名/申请的域名.key
+[Sun Sep 12 10:15:33 CST 2021] The intermediate CA cert is in: /root/.acme.sh/申请的域名/ca.cer
+[Sun Sep 12 10:15:33 CST 2021] And the full chain certs is there: /root/.acme.sh/申请的域名/fullchain.cer
+[root@v ~]# cd /root/.acme.sh/申请的域名/
+```
+
+
+## 移动证书文件
+创建存放证书的文件夹trojan-cert 完整路径为 /usr/src/trojan-cert
+```
+[root@v 申请的域名]# mkdir /usr/src/trojan-cert
+[root@v 申请的域名]# cp fullchain.cer /usr/src/trojan-cert/
+[root@v 申请的域名]# cp 申请的域名.key /usr/src/trojan-cert/private.key
+```
+
+## 启动Trojan服务
+设置启动Trojan服务
+```
+systemctl start trojan.service  #启动Trojan
+systemctl enable trojan.service  #设置Trojan服务开机自启
+```
+
+## 验证SSL证书
+访问 https://申请的域名 ，检查证书和Trojan是否正常运行（有小锁成功）。记得是访问 https:// 不是 http://
+
+## 下载Trojan客户端软件
+点击访问官方[Releases · trojan-gfw/trojan · GitHub](https://github.com/trojan-gfw/trojan/releases)，查看最新版本
+下载客户端 trojan-1.16.0-win.zip
+
+Win系统不想要Trojan的小黑窗，可以创建如下批处理运行Trojan.exe文件
+命令如下
+
+### start.bat 启动Trojan服务
 
 ```
-vi /etc/my.cnf
-
-character-set-server=utf8
-collation-server=utf8_general_ci
-max_connections=1000
-table_open_cache=6000
-thread_cache_size=50
-open_files_limit=8000
-event_scheduler=ON
- 
-group_concat_max_len=999999999999
+@ECHO OFF
+%1 start mshta vbscript:createobject("wscript.shell").run("""%~0"" ::",0)(window.close)&&exit
+start /b trojan.exe
 ```
+
+### stop.bat 停止Trojan服务
+
+```
+@ECHO OFF
+taskkill /im trojan.exe /f
+ping -n 2 127.1 >nul
+```
+把上述两个.bat文件，放在Trojan文件夹根目录下面，保证和Trojan.exe位于同一目录。
+
+### 配置Trojan客户端
+找到Trojan文件夹里面的config.json文件
+修改下面两项参数，其余参数保持不变。
+
+```
+"remote_addr": "申请的域名",
+    "password": [
+        "密码"
+    ],
+```
+双击start.bat启动客户端，监听本地1080端口数据。
+
+
+## Windows10设置安装客户端开机启动
+win+R打开允许，执行shell:startup打开启动文件目录，
+复制start.bat的快捷方式到启动目录。
+
+<img src="/img/in-post/2021-09-11/run.png" style="zoom:50%;" />
+
+## 安装SwitchyOmega浏览器插件
+
+访问Microsoft Edge Add-ons，查找SwitchyOmega，安装最新版本
+Proxy SwitchyOmega - Microsoft Edge Addons
+
+
+## 配置SwitchyOmega浏览器插件
+
+<img src="/img/in-post/2021-09-11/proxy.png" style="zoom:50%;" />
+
+<img src="/img/in-post/2021-09-11/auto.png" style="zoom:50%;" />
+
+
+## 使用Trojan访问YouTube网站
+
+<img src="/img/in-post/2021-09-11/youtube.png" style="zoom:50%;" />
