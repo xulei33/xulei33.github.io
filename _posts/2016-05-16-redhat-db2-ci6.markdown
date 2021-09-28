@@ -12,159 +12,148 @@ tags:
     - Linux
 ---
 
-### SAS计算层服务器安装DB2客户端
+## 准备数据
+### 准备建模数据，包含输入变量和目标变量
 
-![](/img/in-post/2016-05-17/2016-05-17(0).png)
-![](/img/in-post/2016-05-17/2016-05-17(1).png)
-![](/img/in-post/2016-05-17/2016-05-17(2).png)
-![](/img/in-post/2016-05-17/2016-05-17(3).png)
-![](/img/in-post/2016-05-17/2016-05-17(4).png)
-![](/img/in-post/2016-05-17/2016-05-17(5).png)
-![](/img/in-post/2016-05-17/2016-05-17(6).png)
-![](/img/in-post/2016-05-17/2016-05-17(7).png)
-![](/img/in-post/2016-05-17/2016-05-17(8).png)
-![](/img/in-post/2016-05-17/2016-05-17(9).png)
-![](/img/in-post/2016-05-17/2016-05-17(10).png)
-![](/img/in-post/2016-05-17/2016-05-17(11).png)
-
-
-
-### 添加DB2环境变量
-> vi /etc/profile
->
-> DB2_HOME=/opt/ibm/db2/v10.5
->
-> PATH=$DB2_HOME/bin:$PATH
->
-> export DB2_HOME
->
-> export PATH
-> 
-> source /home/db2inst1/sqllib/db2profile
-> 
-> export DB2CODPEAGE=1386
->
-
-![](/img/in-post/2016-05-17/2016-05-17(12).png)
-![](/img/in-post/2016-05-17/2016-05-17(13).png)
-
-### 添加DB2环境变量到SAS
-> vi SASHome/SASFoundation/9.4/bin/sasenv_local
->
-> . /home/db2inst1/sqllib/db2profile
->
-
-![](/img/in-post/2016-05-17/2016-05-17(14).png)
-![](/img/in-post/2016-05-17/2016-05-17(15).png)
-
-### 配置SAS Format
-> vi SASConfig/Lev1/SASApp/appserver_autoexec_usermods.sas
->
-> options FMTSEARCH=(MAMISC WORK LIBRARY) NOFMTERR;
->
-> options missing="";
->
-
-### 配置MALauncher支持中文
-
-> vi /SASHome/SASMarketingAutomationLauncher/6.3/sasmalauncher.ini
->
-> JavaArgs_8=-Dma.unicode.marker=U+
-> JavaArgs_9=-Dma.launcher.log=malog.log
-> JavaArgs_10=-Dma.launcher.abslogdir=/zhyx/SASConfig/Lev1/Logs
->
-
-### 配置MOLauncher支持中文
-
-> vi /SASHome/SASMarketingOptimizationLauncher/6.3/sasmolauncher.ini
->
-> JavaArgs_8=-Dma.unicode.marker=U+
-> JavaArgs_9=-Dma.launcher.log=malog.log
-> JavaArgs_10=-Dma.launcher.abslogdir=/zhyx/SASConfig/Lev1/Logs
->
-
-> /SASHome/SASMarketingAutomationLauncher/6.3/sasmalauncher.ini
->
-> JavaArgs_8=-Dma.unicode.marker=U+
-> JavaArgs_9=-Dma.launcher.log=malog.log
-> JavaArgs_10=-Dma.launcher.abslogdir=/zhyx/SASConfig/Lev1/Logs
->
+```
+data demo1;
+	do i = 1 to 10000;
+		a = round(rand('CHIS',1)*10000,1);
+		b = round(rand('CHIS',1)*10000,1);
+		c = round(rand('CHIS',1)*10000,1);
+		d = round(rand('CHIS',1)*10000,1);
+		e = round(rand('CHIS',1)*10000,1);
+		rst = round(0.128*a + 0.431*b + 1.92*c,1);
+		output;
+	end;
+run;
+```
 
 
-### 配置sasv9.cfg
-> vi SASHome\SASFoundation\9.4\sasv9.cfg
+![](/img/in-post/20210928/prepare-data.png)
 
-#### 配置SAS支持中文 
-sasv9.cfg文件尾部添加
-> -VALIDVARNAME ANY
-> -VALIDMEMNAME EXTEND
-> -DBCS
-> -DBCSTYPE PCMS
-> -DBCSLANG CHINESE
+### 加载建模数据到CAS
+```
+cas mySession sessopts=(caslib=public timeout=1800 locale="en_US");
+caslib _all_ assign;
+proc casutil sessref=mySession;
+	load data=work.demo1 outcaslib="public"
+	casout="demo1" promote;
+run;
+```
 
-#### 配置-JREOPTIONS
-增加下面两个jre参数
-> -Duser.language=zh
->
-> -Duser.country=CN
+## 建模
 
-#### 配置计算服务器-WORK工作目录
+### 识别关键变量
+```
+proc pca data=public.demo1 plots=(scree);
+	var a b c d e rst;
+run;
+```
 
-> 在计算服务器共享存储上创建计算服务器工作目录
-> mkdir -p /compute/saswork
-> chown 775 /compute/saswork
-
->
-> -WORK /compute/saswork
-> 
-
-### 计算层服务器编目
-
->
-> cd /opt/ibm/db2/V10.5/bin
->
-> ./db2 catalog tcpip node sasdb remote DB2Server server 60000
->
-> ./db2 catalog database sasdb at node sasdb
->
-> ./db2 connect to sasdb user db2inst1 using sas123
->
-
-### SMC创建代理用户组，认证域DBAuth
-
-![](/img/in-post/2016-05-17/2016-05-17(16).png)
-![](/img/in-post/2016-05-17/2016-05-17(17).png)
-![](/img/in-post/2016-05-17/2016-05-17(18).png)
-
-### SMC创建DB2Server
-
-![](/img/in-post/2016-05-17/2016-05-17(19).png)
-![](/img/in-post/2016-05-17/2016-05-17(20).png)
-![](/img/in-post/2016-05-17/2016-05-17(21).png)
-![](/img/in-post/2016-05-17/2016-05-17(22).png)
-![](/img/in-post/2016-05-17/2016-05-17(23).png)
+![](/img/in-post/20210928/key.png)
 
 
-### SAS EG创建CDM表和序列
+### 写SAS代码建模
+```
+ods noproctitle;
+filename sfile filesrvc folderpath='/Users/viyademo01' filename='score.sas';
+filename tempfile temp;
 
-CDM的数据库初始化脚本保存在SASHome/SASFoundation/9.4/misc/cicsvr目录下面，需要通过EG执行下面两个sas程序完成CDM创建。
+proc regselect data=PUBLIC.DEMO1;
+	model rst=a b c d e /;
+	selection method=forward
+(select=sbc stop=sbc choose=sbc) hierarchy=none;
+	code file=tempfile;
+run;
 
-> 1. ci_cdm_ddl_db2.sas 
-> 2. ci_cdm_load_codes.sas
->
+%let x=%sysfunc(fcopy(tempfile, sfile));
+%if &x %then %do;
+%put &x - %sysfunc(sysmsg());
+%end;
+filename tempfile clear;
+filename sfile CLEAR;
+```
 
-### SMC创建数据集
-![](/img/in-post/2016-05-17/2016-05-17(24).png)
-![](/img/in-post/2016-05-17/2016-05-17(25).png)
-![](/img/in-post/2016-05-17/2016-05-17(26).png)
-![](/img/in-post/2016-05-17/2016-05-17(27).png)
-![](/img/in-post/2016-05-17/2016-05-17(28).png)
-![](/img/in-post/2016-05-17/2016-05-17(29).png)
+### 查看模型代码
+```
+   /*---------------------------------------------------------
+     Generated SAS Scoring Code
+     Date: 03Sep2020:17:26:24
+     -------------------------------------------------------*/
+
+   drop _badval_ _linp_ _temp_ _i_ _j_;
+   _badval_ = 0;
+   _linp_   = 0;
+   _temp_   = 0;
+   _i_      = 0;
+   _j_      = 0;
+
+   array _xrow_0_0_{6} _temporary_;
+   array _beta_0_0_{6} _temporary_ (    0.00068767834765
+           0.12799981118493
+           0.43099989289229
+           1.91999992917916
+        -8.5855102997627E-8
+         1.0947205895073E-8);
+
+   if missing(a)
+      or missing(b)
+      or missing(c)
+      or missing(d)
+      or missing(e)
+      then do;
+         _badval_ = 1;
+         goto skip_0_0;
+   end;
+
+   do _i_=1 to 6; _xrow_0_0_{_i_} = 0; end;
+
+   _xrow_0_0_[1] = 1;
+
+   _xrow_0_0_[2] = a;
+
+   _xrow_0_0_[3] = b;
 
 
-### 配置EG代码目录
-![](/img/in-post/2016-05-17/2016-05-17(30).png)
-![](/img/in-post/2016-05-17/2016-05-17(31).png)
-![](/img/in-post/2016-05-17/2016-05-17(32).png)
+   _xrow_0_0_[5] = d;
+
+   _xrow_0_0_[6] = e;
+
+   do _i_=1 to 6;
+      _linp_ + _xrow_0_0_{_i_} * _beta_0_0_{_i_};
+   end;
+
+   skip_0_0:
+   label P_rst = 'Predicted: rst';
+   if (_badval_ eq 0) and not missing(_linp_) then do;
+      P_rst = _linp_;
+      _linp_ = .;
+      P_rst = .;
+   end;
+   end; else do;
+ end; else do;
+```
+
+## 测试模型
+
+```
+data test;
+set public.demo1;
+/*生产的模型代码*/
+diff = round(P_rst - rst,1);
+run;
+
+```
 
 
+
+![](/img/in-post/20210928/rst.png)
+
+
+
+## 向导页面建模
+
+![](/img/in-post/20210928/s1.png)
+
+![](/img/in-post/20210928/s2.png)

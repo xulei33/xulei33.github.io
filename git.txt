@@ -1,5 +1,6 @@
-C:
-D:\java\tools\xulei33.github.io
+
+bundle exec jekyll serve
+
 git status
 git pull
 git add .
